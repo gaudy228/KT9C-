@@ -1,0 +1,83 @@
+﻿namespace KT9._4
+{
+    class Program
+    {
+        static void Main()
+        {
+            IOrder order = new BaseOrder(100);
+
+            order = new ExpressDeliveryDecorator(order);
+            order = new GiftPackagingDecorator(order);
+
+            Console.WriteLine(order.GetDescription());
+            Console.WriteLine(order.GetPrice());
+        }
+    }
+    public interface IOrder
+    {
+        public int GetPrice();
+        public string GetDescription();
+    }
+    public class BaseOrder : IOrder
+    {
+        private int _basePrice;
+        public BaseOrder(int basePrice)
+        {
+            _basePrice = basePrice;
+        }
+        public int GetPrice()
+        {
+            return _basePrice;
+        }
+        public string GetDescription()
+        {
+            return "базовый заказ";
+        }
+    }
+    public abstract class OrderDecorator : IOrder
+    {
+        protected IOrder _order;
+        public OrderDecorator(IOrder order)
+        {
+            _order = order;
+        }
+        public virtual int GetPrice()
+        {
+            return _order.GetPrice();
+        }
+        public virtual string GetDescription()
+        {
+            return _order.GetDescription();
+        }
+    }
+    public class ExpressDeliveryDecorator : OrderDecorator
+    {
+        public ExpressDeliveryDecorator(IOrder order) : base(order)
+        {
+
+        }
+        public override int GetPrice()
+        {
+            return base.GetPrice() + 30;
+        }
+        public override string GetDescription()
+        {
+            return base.GetDescription() + ", оперативная доставка";
+        }
+    }
+    public class GiftPackagingDecorator : OrderDecorator
+    {
+        public GiftPackagingDecorator(IOrder order) : base(order)
+        {
+
+        }
+        public override int GetPrice()
+        {
+            return base.GetPrice() + 20;
+        }
+        public override string GetDescription()
+        {
+            return base.GetDescription() + ", упаковка";
+        }
+    }
+}
