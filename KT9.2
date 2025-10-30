@@ -1,0 +1,91 @@
+﻿namespace KT9._2
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            CoffeeMachine machine = new CoffeeMachine();
+            machine.ExecutionFunction();
+            machine.ExecutionFunction();
+        }
+    }
+    public interface ICoffeeMachineState
+    {
+        public void State();
+    }
+    class CoffeeMachine
+    {
+        public ICoffeeMachineState WaitingState { get; private set; }
+        public ICoffeeMachineState SelectionState { get;  private set; }
+        public ICoffeeMachineState DispensingState { get; private set; }
+        public ICoffeeMachineState ReadyState { get; private set; }
+        public ICoffeeMachineState CurState { get; set; }
+        public CoffeeMachine()
+        {
+            WaitingState = new WaitingCoin(this);
+            SelectionState = new DrinkSelection(this);
+            DispensingState = new DrinkDispensing(this);
+            ReadyState = new Ready(this);
+            CurState = WaitingState;
+        }
+        public void ExecutionFunction()
+        {
+            CurState.State();
+        }
+    }
+    class WaitingCoin : ICoffeeMachineState
+    {
+        private CoffeeMachine machine;
+        public WaitingCoin(CoffeeMachine machine)
+        {
+            this.machine = machine;
+        }
+        public void State()
+        {
+            Console.Write("Пользователь → Внесение монет → ");
+            machine.CurState = new DrinkSelection(machine);
+            machine.ExecutionFunction();
+        }
+    }
+    class DrinkSelection : ICoffeeMachineState
+    {
+        private CoffeeMachine machine;
+        public DrinkSelection(CoffeeMachine machine)
+        {
+            this.machine = machine;
+        }
+        public void State()
+        {
+            Console.Write("Выбор напитка → ");
+            machine.CurState = new DrinkDispensing(machine);
+            machine.ExecutionFunction();
+        }
+    }
+    class DrinkDispensing : ICoffeeMachineState
+    {
+        private CoffeeMachine machine;
+        public DrinkDispensing(CoffeeMachine machine)
+        {
+            this.machine = machine;
+        }
+        public void State()
+        {
+            Console.WriteLine("Автомат выдаёт напиток → ");
+            machine.CurState = new Ready(machine);
+            machine.ExecutionFunction();
+        }
+    }
+    class Ready : ICoffeeMachineState
+    {
+        private CoffeeMachine machine;
+        public Ready(CoffeeMachine machine)
+        {
+            this.machine = machine;
+        }
+        public void State()
+        {
+            Console.WriteLine("Автомат возвращается в состояние ожидания следующего клиента");
+            machine.CurState = new WaitingCoin(machine);
+        }
+    }
+}
