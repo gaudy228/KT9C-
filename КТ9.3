@@ -1,0 +1,67 @@
+﻿namespace KT9._3
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            ChatMediator mediator = new ChatMediator();
+
+            ChatMember artem = new ChatMember("Артем", mediator);
+            ChatMember anton = new ChatMember("Антон", mediator);
+            ChatMember stepa = new ChatMember("Степа", mediator);
+
+            artem.SendMessage("Ку");
+            anton.SendMessage("привет");
+            stepa.SendMessage("пока");
+        }
+    }
+    public interface IChatMediator
+    {
+        public void RegisterMember(IChatMember member);
+        public void SendMessage(string message, IChatMember sender);
+    }
+    public interface IChatMember
+    {
+        public string Name { get; }
+        public void SendMessage(string message);
+        public void ReceiveMessage(string message, string senderName);
+    }
+    public class ChatMediator : IChatMediator
+    {
+        private List<IChatMember> _members = new List<IChatMember>();
+        public void RegisterMember(IChatMember member)
+        {
+            _members.Add(member);
+        }
+        public void SendMessage(string message, IChatMember sender)
+        {
+            foreach (var member in _members)
+            {
+                if (member != sender)
+                {
+                    member.ReceiveMessage(message, sender.Name);
+                }
+            }
+        }
+    }
+    public class ChatMember : IChatMember
+    {
+        public string Name { get; private set; }
+        private IChatMediator _mediator;
+        public ChatMember(string name, IChatMediator mediator)
+        {
+            Name = name;
+            _mediator = mediator;
+            _mediator.RegisterMember(this);
+        }
+        public void SendMessage(string message)
+        {
+            Console.WriteLine($"{Name} {message}");
+            _mediator.SendMessage(message, this);
+        }
+        public void ReceiveMessage(string message, string senderName)
+        {
+            Console.WriteLine($"{Name} {senderName} {message}");
+        }
+    }
+}
