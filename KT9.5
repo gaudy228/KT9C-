@@ -1,0 +1,48 @@
+﻿namespace KT9._5
+{
+    class Program
+    {
+        static void Main()
+        {
+            IService service = new ProxyService();
+
+            Console.WriteLine(service.GetData());
+            Console.WriteLine(service.GetData());
+            Thread.Sleep(6000);
+            Console.WriteLine(service.GetData());
+            Console.WriteLine(service.GetData());
+        }
+    }
+    public interface IService
+    {
+        string GetData();
+    }
+    public class RealService : IService
+    {
+        public string GetData()
+        {
+            Thread.Sleep(3000);
+            return $"{DateTime.Now}";
+        }
+    }
+    public class ProxyService : IService
+    {
+        private RealService _realService = new RealService();
+        private string _cachedData;
+        private DateTime _lastFetchTime;
+        private TimeSpan _cacheDuration = TimeSpan.FromSeconds(5);
+        public string GetData()
+        {
+            if (_cachedData != null && (DateTime.Now - _lastFetchTime) < _cacheDuration)
+            {
+                return _cachedData;
+            }
+            else
+            {
+                _cachedData = _realService.GetData();
+                _lastFetchTime = DateTime.Now;
+                return _cachedData;
+            }
+        }
+    }
+}
